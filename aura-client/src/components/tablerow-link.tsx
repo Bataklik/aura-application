@@ -8,7 +8,7 @@ type tablerowLinkProps = {
   href: string;
   name: string;
   status: string;
-  problems: number;
+  problems: number | undefined;
 };
 
 export function TablerowLink({
@@ -28,10 +28,27 @@ export function TablerowLink({
     >
       <TableCell>{name}</TableCell>
       <TableCell>
-        <Badge>{status}</Badge>
+        <Badge
+          className="capitalize text-center"
+          variant={
+            status == "Api Error"
+              ? "destructive"
+              : status == "Api Waiting"
+              ? "outline"
+              : status == "Api Loading..."
+              ? "secondary"
+              : "default"
+          }
+        >
+          {status}
+        </Badge>
       </TableCell>
       <TableCell>
-        {problems == 1 ? "1 problem" : `${problems} problems`} gevonden
+        {typeof problems !== "undefined"
+          ? problems === 1
+            ? "1 problem"
+            : `${problems} problems`
+          : "No problems found"}
       </TableCell>
     </TableRow>
   );

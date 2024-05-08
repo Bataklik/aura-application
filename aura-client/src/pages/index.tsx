@@ -1,5 +1,5 @@
-import { useState } from "react";
 import { Input } from "../components/ui/input";
+import { Loader2 } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { TablerowLink } from "../components/tablerow-link";
 import {
@@ -9,18 +9,75 @@ import {
   TableHead,
   TableBody,
 } from "../components/ui/table";
-import { getAxeResults } from "../services/axeServices";
+import { getAxeResults, getPA11YResults } from "../services/apiService";
+import { useState } from "react";
+import { AxeResultsType, Pa11yResultsType } from "@/lib/types";
 
 export default function Home() {
-  const [results, setResults] = useState("Loading");
+  const [buttonDisabled, setButtonDisabled] = useState<boolean>(false);
+  const [axeResults, setAxeResults] = useState<AxeResultsType | null>(null);
+  const [axeStatus, setAxeStatus] = useState<string>("Api Waiting");
+
+  const [pa11yResults, setPa11yResults] = useState<Pa11yResultsType | null>(
+    null
+  );
+  const [pa11yStatus, setPa11yStatus] = useState<string>("Api Waiting");
+  const countAxeResultProblems = (result: AxeResultsType | undefined) => {
+    if (result === undefined) return undefined;
+    let totalProblemsCount = 0;
+    //? Violations value
+    if (result.violations) {
+      result.violations.forEach(violation => {
+        totalProblemsCount += violation.nodes.length;
+      });
+    }
+    //? Incompete value
+    if (result.incomplete) {
+      result.incomplete.forEach(incomplete => {
+        totalProblemsCount += incomplete.nodes.length;
+      });
+    }
+
+    return totalProblemsCount;
+  };
+
+  const countPa11yResultProblems = (result: Pa11yResultsType | undefined) => {
+    if (result === undefined) return undefined;
+    let totalProblemsCount = 0;
+    result.issues.forEach(issue => {
+      totalProblemsCount += 1;
+    });
+    return totalProblemsCount;
+  };
+
   const handleClick = () => {
+    setButtonDisabled(true);
+    setAxeStatus("Api Loading...");
+    setPa11yStatus("Api Loading...");
+
     getAxeResults("https://www.hogent.be")
       .then(result => {
-        console.log("Result:", result);
+        console.log("Result axe:", result);
+        setAxeStatus("Api Success");
+        setAxeResults(result);
       })
       .catch(error => {
+        setAxeStatus("Api Error");
         console.error("Error:", error);
       });
+
+    getPA11YResults("https://www.hogent.be")
+      .then(result => {
+        console.log("Result pa11y:", result);
+        setPa11yStatus("Api Success");
+        setPa11yResults(result);
+      })
+      .catch(error => {
+        setPa11yStatus("Api Error");
+        console.error("Error:", error);
+      });
+
+    setButtonDisabled(false);
   };
 
   return (
@@ -30,7 +87,7 @@ export default function Home() {
           AURA is een tool die websites automatisch controleert op
           toegankelijkheid. Voer de URL van uw website in en klik op
           &apos;Controleer Toegankelijkheid&apos; om een gedetailleerd rapport
-          te ontvangen. results: {results}
+          te ontvangen.
         </p>
         <div className="flex items-center mb-8">
           <Input
@@ -38,9 +95,16 @@ export default function Home() {
             placeholder="Voer de URL van uw website in"
             type="text"
           />
-          <Button onClick={() => handleClick()}>
-            Controleer Toegankelijkheid
-          </Button>
+          {buttonDisabled ? (
+            <Button disabled={true} onClick={() => handleClick()}>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Controleer Toegankelijkheid
+            </Button>
+          ) : (
+            <Button disabled={false} onClick={() => handleClick()}>
+              Controleer Toegankelijkheid
+            </Button>
+          )}
         </div>
         <div
           className="border rounded-md p-6 bg-gray-100 dark:bg-gray-800"
@@ -50,7 +114,7 @@ export default function Home() {
             <TableHeader>
               <TableRow>
                 <TableHead>Tool</TableHead>
-                <TableHead>Resultaat</TableHead>
+                <TableHead>Status</TableHead>
                 <TableHead>Problemen</TableHead>
               </TableRow>
             </TableHeader>
@@ -58,15 +122,15 @@ export default function Home() {
               <TablerowLink
                 href={"/pa11y"}
                 name={"PA11Y"}
-                status={"Successful"}
-                problems={0}
+                status={pa11yStatus}
+                problems={countPa11yResultProblems(pa11yResults || undefined)}
               />
 
               <TablerowLink
                 href={"/axe"}
                 name={"aXe"}
-                status={"Warning"}
-                problems={1}
+                status={axeStatus}
+                problems={countAxeResultProblems(axeResults || undefined)}
               />
               <TablerowLink
                 href={"/axe"}
