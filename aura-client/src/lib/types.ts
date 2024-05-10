@@ -160,3 +160,62 @@ export interface Pa11yResultsType {
   pageUrl: string;
   issues: IssueType[];
 }
+//? Achecker types
+export interface AcheckerResultsType {
+  report: {
+    results: {
+      ruleId: string;
+      value: string[];
+      path: {
+        dom: string;
+        aria: string;
+      };
+      ruleTime: number;
+      reasonId: string;
+      message: string;
+      messageArgs: string[];
+      apiArgs: any[];
+      bounds: {
+        left: number;
+        top: number;
+        height: number;
+        width: number;
+      };
+      snippet: string;
+      category: string;
+      ignored: boolean;
+      level: string;
+      help: string;
+    }[];
+    numExecuted: number;
+    ruleTime: number;
+    nls: {
+      [key: string]: {
+        [key: string]: string;
+      };
+    };
+    summary: {
+      counts: {
+        violation: number;
+        potentialviolation: number;
+        recommendation: number;
+        potentialrecommendation: number;
+        manual: number;
+        pass: number;
+        ignored: number;
+        elements: number;
+        elementsViolation: number;
+        elementsViolationReview: number;
+      };
+      scanTime: number;
+      ruleArchive: string;
+      policies: string[];
+      reportLevels: string[];
+      startScan: number;
+      URL: string;
+    };
+    scanID: string;
+    toolID: string;
+    label: string;
+  };
+}

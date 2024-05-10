@@ -9,9 +9,17 @@ import {
   TableHead,
   TableBody,
 } from "../components/ui/table";
-import { getAxeResults, getPA11YResults } from "../services/apiService";
+import {
+  getAcheckerResults,
+  getAxeResults,
+  getPA11YResults,
+} from "../services/apiService";
 import { useState } from "react";
-import { AxeResultsType, Pa11yResultsType } from "@/lib/types";
+import {
+  AcheckerResultsType,
+  AxeResultsType,
+  Pa11yResultsType,
+} from "@/lib/types";
 
 export default function Home() {
   const [buttonDisabled, setButtonDisabled] = useState<boolean>(false);
@@ -22,6 +30,11 @@ export default function Home() {
     null
   );
   const [pa11yStatus, setPa11yStatus] = useState<string>("Api Waiting");
+
+  const [acheckerResults, setAcheckerResults] =
+    useState<AcheckerResultsType | null>(null);
+  const [acheckerStatus, setAcheckerStatus] = useState<string>("Api Waiting");
+
   const countAxeResultProblems = (result: AxeResultsType | undefined) => {
     if (result === undefined) return undefined;
     let totalProblemsCount = 0;
@@ -49,6 +62,19 @@ export default function Home() {
     });
     return totalProblemsCount;
   };
+  const countAccheckerResultProblems = (
+    result: AcheckerResultsType | undefined
+  ) => {
+    if (result === undefined) return undefined;
+    let totalProblemsCount = 0;
+    result.report.results.forEach(item => {
+      if (item && item.level === "violation") {
+        totalProblemsCount++;
+      }
+    });
+    console.log("Achecker problems:", totalProblemsCount);
+    return totalProblemsCount;
+  };
 
   const handleClick = () => {
     setButtonDisabled(true);
@@ -74,6 +100,16 @@ export default function Home() {
       })
       .catch(error => {
         setPa11yStatus("Api Error");
+        console.error("Error:", error);
+      });
+    getAcheckerResults("https://www.hogent.be")
+      .then(result => {
+        console.log("Result Achecker:", result);
+        setAcheckerStatus("Api Success");
+        setAcheckerResults(result);
+      })
+      .catch(error => {
+        setAcheckerStatus("Api Error");
         console.error("Error:", error);
       });
 
@@ -132,18 +168,14 @@ export default function Home() {
                 status={axeStatus}
                 problems={countAxeResultProblems(axeResults || undefined)}
               />
-              <TablerowLink
-                href={"/axe"}
-                name={"aXe"}
-                status={"Warning"}
-                problems={1}
-              />
 
               <TablerowLink
-                href={"/Lighthouse"}
-                name={"Lighthouse"}
-                status={"Danger"}
-                problems={3}
+                href={"/achecker"}
+                name={"Achecker"}
+                status={acheckerStatus}
+                problems={countAccheckerResultProblems(
+                  acheckerResults || undefined
+                )}
               />
             </TableBody>
           </Table>
