@@ -74,10 +74,9 @@ app.get("/api/achecker-results", async (req, res) => {
   }
 
   try {
-    // Perform the accessibility scan using the aChecker.getCompliance API
     const results = await aChecker.getCompliance(url, "/");
     const report = results.report;
-    // Send the results as JSON
+    console.log(report);
     res.status(200).json({ report });
   } catch (err) {
     console.error(err);
@@ -85,7 +84,6 @@ app.get("/api/achecker-results", async (req, res) => {
       .status(500)
       .json({ error: "An error occurred while processing the request" });
   } finally {
-    // close the engine
     await aChecker.close();
   }
 });
