@@ -1,3 +1,4 @@
 # Ignore node_modules 
 /aura-client/node_modules
 /aura-server/node_modules
+/aura-server/results
