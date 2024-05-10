@@ -20,8 +20,12 @@ import {
   AxeResultsType,
   Pa11yResultsType,
 } from "@/lib/types";
+import { useDispatch } from "react-redux";
+import { updateResults } from "@/redux/slices/acheckerSlice";
 
 export default function Home() {
+  const dispatch = useDispatch();
+
   const [buttonDisabled, setButtonDisabled] = useState<boolean>(false);
   const [axeResults, setAxeResults] = useState<AxeResultsType | null>(null);
   const [axeStatus, setAxeStatus] = useState<string>("Api Waiting");
@@ -107,6 +111,7 @@ export default function Home() {
         console.log("Result Achecker:", result);
         setAcheckerStatus("Api Success");
         setAcheckerResults(result);
+        dispatch(updateResults(result));
       })
       .catch(error => {
         setAcheckerStatus("Api Error");
@@ -170,7 +175,7 @@ export default function Home() {
               />
 
               <TablerowLink
-                href={"/achecker"}
+                href={"details/achecker"}
                 name={"Achecker"}
                 status={acheckerStatus}
                 problems={countAccheckerResultProblems(

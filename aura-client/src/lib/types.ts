@@ -163,30 +163,7 @@ export interface Pa11yResultsType {
 //? Achecker types
 export interface AcheckerResultsType {
   report: {
-    results: {
-      ruleId: string;
-      value: string[];
-      path: {
-        dom: string;
-        aria: string;
-      };
-      ruleTime: number;
-      reasonId: string;
-      message: string;
-      messageArgs: string[];
-      apiArgs: any[];
-      bounds: {
-        left: number;
-        top: number;
-        height: number;
-        width: number;
-      };
-      snippet: string;
-      category: string;
-      ignored: boolean;
-      level: string;
-      help: string;
-    }[];
+    results: result[];
     numExecuted: number;
     ruleTime: number;
     nls: {
@@ -218,4 +195,29 @@ export interface AcheckerResultsType {
     toolID: string;
     label: string;
   };
+}
+
+interface result {
+  ruleId: string;
+  value: string[];
+  path: {
+    dom: string;
+    aria: string;
+  };
+  ruleTime: number;
+  reasonId: string;
+  message: string;
+  messageArgs: string[];
+  apiArgs: any[];
+  bounds: {
+    left: number;
+    top: number;
+    height: number;
+    width: number;
+  };
+  snippet: string;
+  category: string;
+  ignored: boolean;
+  level: string;
+  help: string;
 }
