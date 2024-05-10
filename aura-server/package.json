@@ -11,6 +11,7 @@
   "description": "",
   "dependencies": {
     "@axe-core/webdriverjs": "^4.9.0",
+    "accessibility-checker": "^3.1.71",
     "compression": "^1.7.4",
     "connect-timeout": "^1.9.0",
     "dotenv": "^16.4.5",

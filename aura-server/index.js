@@ -4,6 +4,8 @@ const { Builder } = require("selenium-webdriver");
 const chrome = require("selenium-webdriver/chrome");
 const compression = require("compression");
 const pa11y = require("pa11y");
+const aChecker = require("accessibility-checker");
+
 var timeout = require("connect-timeout");
 const express = require("express");
 const app = express();
@@ -61,6 +63,31 @@ app.get("/api/pa11y-results", async (req, res) => {
     .catch(error => {
       res.json({ error: error.message });
     });
+});
+
+app.get("/api/achecker-results", async (req, res) => {
+  const url = req.query.url;
+  if (!url || typeof url !== "string") {
+    return res
+      .status(400)
+      .json({ error: "'url' query parameter is missing or invalid" });
+  }
+
+  try {
+    // Perform the accessibility scan using the aChecker.getCompliance API
+    const results = await aChecker.getCompliance(url, "/");
+    const report = results.report;
+    // Send the results as JSON
+    res.status(200).json({ report });
+  } catch (err) {
+    console.error(err);
+    res
+      .status(500)
+      .json({ error: "An error occurred while processing the request" });
+  } finally {
+    // close the engine
+    await aChecker.close();
+  }
 });
 
 app.listen(PORT, () => {
