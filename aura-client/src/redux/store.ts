@@ -1,9 +1,34 @@
 import { configureStore } from "@reduxjs/toolkit";
 import acheckerSlice from "./slices/acheckerSlice";
 import { useDispatch } from "react-redux";
+import pa11ySlice from "./slices/pa11ySlice";
+import axeSlice from "./slices/axeSlice";
+import storage from "redux-persist/lib/storage";
+import { persistReducer, persistStore } from "redux-persist";
+import { combineReducers } from "@reduxjs/toolkit";
+import { version } from "os";
+
+const persistConfig = {
+  key: "root",
+  version: 1,
+  storage,
+};
+
+const rootReducer = combineReducers({
+  acheckerSlice,
+  pa11ySlice,
+  axeSlice,
+});
+
+const persistedReducer = persistReducer(persistConfig, rootReducer);
 
 const store = configureStore({
-  reducer: { acheckerSlice },
+  middleware: getDefaultMiddleware =>
+    getDefaultMiddleware({
+      immutableCheck: false,
+      serializableCheck: false,
+    }),
+  reducer: persistedReducer,
 });
 
 export type RootState = ReturnType<typeof store.getState>;

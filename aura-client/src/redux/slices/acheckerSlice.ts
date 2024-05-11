@@ -13,11 +13,11 @@ const acheckerSlice = createSlice({
   name: "achecker",
   initialState,
   reducers: {
-    updateResults: (state, action: PayloadAction<any>) => {
+    updateAcheckerResults: (state, action: PayloadAction<any>) => {
       state.results = action.payload;
     },
   },
 });
 
-export const { updateResults } = acheckerSlice.actions;
+export const { updateAcheckerResults } = acheckerSlice.actions;
 export default acheckerSlice.reducer;

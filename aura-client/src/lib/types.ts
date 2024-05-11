@@ -1,4 +1,42 @@
 //? Axe-core types
+export type AxeViolationType = [
+  {
+    id: string;
+    impact: "serious" | "moderate" | "minor" | "critical";
+    tags: string[];
+    description: string;
+    help?: string;
+    helpUrl?: string;
+    nodes: [
+      {
+        any: {
+          id: string;
+          data: {
+            contrastRatio?: number;
+            fontSize?: string;
+            fontWeight?: string;
+            messageKey?: string;
+            expectedContrastRatio?: string;
+            fgColor?: string;
+            bgColor?: string;
+          } | null;
+          relatedNodes: {
+            html: string;
+            target: string[];
+          }[];
+          impact: "serious" | "moderate" | "minor" | "critical";
+          message: string;
+        }[];
+        all: never[];
+        none: never[];
+        impact: "serious" | "moderate" | "minor" | "critical";
+        html: string;
+        target: string[];
+        failureSummary: string;
+      }
+    ];
+  }
+];
 export interface AxeResultsType {
   inapplicable: [
     {
@@ -11,7 +49,7 @@ export interface AxeResultsType {
       nodes: any[];
     }
   ];
-  incomplete: IncompeleteType;
+  incomplete: AxeIncompeleteType;
   passes: [
     {
       id: string;
@@ -48,44 +86,7 @@ export interface AxeResultsType {
       ];
     }
   ];
-  violations: [
-    {
-      id: string;
-      impact: "serious" | "moderate" | "minor" | "critical";
-      tags: string[];
-      description: string;
-      help?: string;
-      helpUrl?: string;
-      nodes: [
-        {
-          any: {
-            id: string;
-            data: {
-              contrastRatio?: number;
-              fontSize?: string;
-              fontWeight?: string;
-              messageKey?: string;
-              expectedContrastRatio?: string;
-              fgColor?: string;
-              bgColor?: string;
-            } | null;
-            relatedNodes: {
-              html: string;
-              target: string[];
-            }[];
-            impact: "serious" | "moderate" | "minor" | "critical";
-            message: string;
-          }[];
-          all: never[];
-          none: never[];
-          impact: "serious" | "moderate" | "minor" | "critical";
-          html: string;
-          target: string[];
-          failureSummary: string;
-        }
-      ];
-    }
-  ];
+  violations: AxeViolationType;
   testEngine: {
     name: string;
     version: string;
@@ -106,7 +107,7 @@ export interface AxeResultsType {
   };
   url: string;
 }
-export type IncompeleteType = [
+export type AxeIncompeleteType = [
   {
     id: string;
     impact: "serious" | "moderate" | "minor" | "critical";
@@ -144,7 +145,7 @@ export type IncompeleteType = [
 ];
 
 //? PA11Y types
-interface IssueType {
+export interface PA11YIssueType {
   code: string;
   type: string;
   typeCode: number;
@@ -158,7 +159,7 @@ interface IssueType {
 export interface Pa11yResultsType {
   documentTitle: string;
   pageUrl: string;
-  issues: IssueType[];
+  issues: PA11YIssueType[];
 }
 //? Achecker types
 export interface AcheckerResultsType {

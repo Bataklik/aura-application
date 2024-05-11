@@ -17,40 +17,54 @@ import {
 import { useState } from "react";
 import {
   AcheckerResultsType,
+  AxeIncompeleteType,
   AxeResultsType,
+  AxeViolationType,
+  PA11YIssueType,
   Pa11yResultsType,
 } from "@/lib/types";
-import { useDispatch } from "react-redux";
-import { updateResults } from "@/redux/slices/acheckerSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { updateAcheckerResults } from "@/redux/slices/acheckerSlice";
+import { updatePa11yResults } from "@/redux/slices/pa11ySlice";
+import { setViolations, setIncomplete } from "@/redux/slices/axeSlice";
+import { RootState } from "@/redux/store";
 
 export default function Home() {
   const dispatch = useDispatch();
-
+  const axeSelector = useSelector((state: RootState) => state.axeSlice);
+  const pa11ySelector = useSelector((state: RootState) => state.pa11ySlice);
+  const acheckerSelector = useSelector(
+    (state: RootState) => state.acheckerSlice
+  );
   const [buttonDisabled, setButtonDisabled] = useState<boolean>(false);
-  const [axeResults, setAxeResults] = useState<AxeResultsType | null>(null);
+  // const [axeResults, setAxeResults] = useState<AxeResultsType | null>(null);
   const [axeStatus, setAxeStatus] = useState<string>("Api Waiting");
 
-  const [pa11yResults, setPa11yResults] = useState<Pa11yResultsType | null>(
-    null
-  );
+  // const [pa11yResults, setPa11yResults] = useState<Pa11yResultsType | null>(
+  //   null
+  // );
   const [pa11yStatus, setPa11yStatus] = useState<string>("Api Waiting");
 
-  const [acheckerResults, setAcheckerResults] =
-    useState<AcheckerResultsType | null>(null);
+  // const [acheckerResults, setAcheckerResults] =
+  //   useState<AcheckerResultsType | null>(null);
   const [acheckerStatus, setAcheckerStatus] = useState<string>("Api Waiting");
 
-  const countAxeResultProblems = (result: AxeResultsType | undefined) => {
-    if (result === undefined) return undefined;
+  const countAxeResultProblems = (
+    violations: AxeViolationType | undefined,
+    incomplete: AxeIncompeleteType | undefined
+  ) => {
+    if (violations === undefined) return undefined;
+    if (incomplete === undefined) return undefined;
     let totalProblemsCount = 0;
     //? Violations value
-    if (result.violations) {
-      result.violations.forEach(violation => {
+    if (violations) {
+      violations.forEach(violation => {
         totalProblemsCount += violation.nodes.length;
       });
     }
     //? Incompete value
-    if (result.incomplete) {
-      result.incomplete.forEach(incomplete => {
+    if (incomplete) {
+      incomplete.forEach(incomplete => {
         totalProblemsCount += incomplete.nodes.length;
       });
     }
@@ -58,10 +72,10 @@ export default function Home() {
     return totalProblemsCount;
   };
 
-  const countPa11yResultProblems = (result: Pa11yResultsType | undefined) => {
-    if (result === undefined) return undefined;
+  const countPa11yResultProblems = (results: PA11YIssueType[] | undefined) => {
+    if (results === undefined) return undefined;
     let totalProblemsCount = 0;
-    result.issues.forEach(issue => {
+    results.forEach(() => {
       totalProblemsCount += 1;
     });
     return totalProblemsCount;
@@ -76,7 +90,6 @@ export default function Home() {
         totalProblemsCount++;
       }
     });
-    console.log("Achecker problems:", totalProblemsCount);
     return totalProblemsCount;
   };
 
@@ -84,12 +97,14 @@ export default function Home() {
     setButtonDisabled(true);
     setAxeStatus("Api Loading...");
     setPa11yStatus("Api Loading...");
-
+    setAcheckerStatus("Api Loading...");
     getAxeResults("https://www.hogent.be")
-      .then(result => {
+      .then((result: AxeResultsType) => {
         console.log("Result axe:", result);
         setAxeStatus("Api Success");
-        setAxeResults(result);
+        //setAxeResults(result);
+        dispatch(setViolations(result.violations));
+        dispatch(setIncomplete(result.incomplete));
       })
       .catch(error => {
         setAxeStatus("Api Error");
@@ -97,10 +112,11 @@ export default function Home() {
       });
 
     getPA11YResults("https://www.hogent.be")
-      .then(result => {
-        console.log("Result pa11y:", result);
+      .then((result: Pa11yResultsType) => {
+        //console.log("Result pa11y:", result);
         setPa11yStatus("Api Success");
-        setPa11yResults(result);
+        //setPa11yResults(result);
+        dispatch(updatePa11yResults(result.issues));
       })
       .catch(error => {
         setPa11yStatus("Api Error");
@@ -108,10 +124,10 @@ export default function Home() {
       });
     getAcheckerResults("https://www.hogent.be")
       .then(result => {
-        console.log("Result Achecker:", result);
+        // console.log("Result Achecker:", result);
         setAcheckerStatus("Api Success");
-        setAcheckerResults(result);
-        dispatch(updateResults(result));
+        //setAcheckerResults(result);
+        dispatch(updateAcheckerResults(result));
       })
       .catch(error => {
         setAcheckerStatus("Api Error");
@@ -161,17 +177,22 @@ export default function Home() {
             </TableHeader>
             <TableBody>
               <TablerowLink
-                href={"/pa11y"}
+                href={"details/pa11y"}
                 name={"PA11Y"}
                 status={pa11yStatus}
-                problems={countPa11yResultProblems(pa11yResults || undefined)}
+                problems={countPa11yResultProblems(
+                  pa11ySelector.issues || undefined
+                )}
               />
 
               <TablerowLink
-                href={"/axe"}
+                href={"details/axe"}
                 name={"aXe"}
                 status={axeStatus}
-                problems={countAxeResultProblems(axeResults || undefined)}
+                problems={countAxeResultProblems(
+                  axeSelector.violations || undefined,
+                  axeSelector.incomplete || undefined
+                )}
               />
 
               <TablerowLink
@@ -179,7 +200,7 @@ export default function Home() {
                 name={"Achecker"}
                 status={acheckerStatus}
                 problems={countAccheckerResultProblems(
-                  acheckerResults || undefined
+                  acheckerSelector.results || undefined
                 )}
               />
             </TableBody>

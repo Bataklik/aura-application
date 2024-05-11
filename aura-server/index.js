@@ -58,7 +58,7 @@ app.get("/api/pa11y-results", async (req, res) => {
   }
   pa11y(url)
     .then(results => {
-      res.json(results);
+      res.status(200).json(results);
     })
     .catch(error => {
       res.json({ error: error.message });
@@ -76,7 +76,7 @@ app.get("/api/achecker-results", async (req, res) => {
   try {
     const results = await aChecker.getCompliance(url, "/");
     const report = results.report;
-    console.log(report);
+    // console.log(report);
     res.status(200).json({ report });
   } catch (err) {
     console.error(err);
