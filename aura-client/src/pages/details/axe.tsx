@@ -10,7 +10,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useRouter } from "next/router";
-import { Button } from "@/components/ui/button";
+import { DetailHead } from "@/components/detail-head";
 
 export default function Axe() {
   const { violations, incomplete } = useSelector(
@@ -24,15 +24,8 @@ export default function Axe() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-4">Axe Results</h1>
-      <Button
-        onClick={handleClick}
-        className="bg-slate-500 hover:bg-slate-700 text-white font-bold py-2 px-4 rounded"
-      >
-        Back
-      </Button>
-
+    <div className="mx-auto px-10 py-8">
+      <DetailHead toolName="Axe" handleClick={handleClick} />
       {/* Violations Table */}
       <h2 className="text-xl font-bold my-4">Violations</h2>
       {violations ? (
@@ -95,14 +88,29 @@ export default function Axe() {
           </TableHeader>
           <TableBody>
             {incomplete.map((incompleteItem, index) => (
-              <TableRow key={index}>
-                <TableCell>{incompleteItem.id}</TableCell>
-                <TableCell>{incompleteItem.impact}</TableCell>
-                <TableCell>{incompleteItem.tags.join(", ")}</TableCell>
-                <TableCell>{incompleteItem.description}</TableCell>
-                <TableCell>{incompleteItem.help}</TableCell>
-                <TableCell>{incompleteItem.helpUrl}</TableCell>
-              </TableRow>
+              <React.Fragment key={index}>
+                <TableRow>
+                  <TableCell>{incompleteItem.id}</TableCell>
+                  <TableCell>{incompleteItem.impact}</TableCell>
+                  <TableCell>{incompleteItem.tags.join(", ")}</TableCell>
+                  <TableCell>{incompleteItem.description}</TableCell>
+                  <TableCell>{incompleteItem.help}</TableCell>
+                  <TableCell>{incompleteItem.helpUrl}</TableCell>
+                </TableRow>
+                {/* Nodes for the incomplete item */}
+                {incompleteItem.nodes.map((node, nodeIndex) => (
+                  <TableRow
+                    key={`${index}-${nodeIndex}`}
+                    className="bg-gray-100"
+                  >
+                    <TableCell colSpan={6}>
+                      <p>HTML: {node.html}</p>
+                      <p>Target: {node.target.join(", ")}</p>
+                      <p>Failure Summary: {node.failureSummary}</p>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </React.Fragment>
             ))}
           </TableBody>
         </Table>

@@ -4,9 +4,8 @@ import { useDispatch } from "react-redux";
 import pa11ySlice from "./slices/pa11ySlice";
 import axeSlice from "./slices/axeSlice";
 import storage from "redux-persist/lib/storage";
-import { persistReducer, persistStore } from "redux-persist";
+import { persistReducer } from "redux-persist";
 import { combineReducers } from "@reduxjs/toolkit";
-import { version } from "os";
 
 const persistConfig = {
   key: "root",

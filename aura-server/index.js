@@ -5,11 +5,9 @@ const chrome = require("selenium-webdriver/chrome");
 const compression = require("compression");
 const pa11y = require("pa11y");
 const aChecker = require("accessibility-checker");
-
 var timeout = require("connect-timeout");
 const express = require("express");
 const app = express();
-
 const PORT = process.env.PORT || 3001;
 app.use(timeout("240s"));
 app.use(compression());
@@ -21,28 +19,25 @@ app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
   next();
 });
-
-app.get("/api/axe-results", async (req, res) => {
-  const url = req.query.url;
-
+const urlCheck = (res, url) => {
   if (!url || typeof url !== "string") {
     return res
       .status(400)
       .json({ error: "'url' query parameter is missing or invalid" });
   }
+};
 
+app.get("/api/axe-results", async (req, res) => {
+  const url = req.query.url;
+  urlCheck(res, url);
   try {
     const driver = new Builder()
       .forBrowser("chrome")
       .setChromeOptions(new chrome.Options().addArguments("--headless"))
       .build();
-
     await driver.get(url);
-
     const results = await new AxeBuilder(driver).analyze();
-
     await driver.quit();
-
     res.json(results);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -51,11 +46,7 @@ app.get("/api/axe-results", async (req, res) => {
 
 app.get("/api/pa11y-results", async (req, res) => {
   const url = req.query.url;
-  if (!url || typeof url !== "string") {
-    return res
-      .status(400)
-      .json({ error: "'url' query parameter is missing or invalid" });
-  }
+  urlCheck(res, url);
   pa11y(url)
     .then(results => {
       res.status(200).json(results);
@@ -67,16 +58,10 @@ app.get("/api/pa11y-results", async (req, res) => {
 
 app.get("/api/achecker-results", async (req, res) => {
   const url = req.query.url;
-  if (!url || typeof url !== "string") {
-    return res
-      .status(400)
-      .json({ error: "'url' query parameter is missing or invalid" });
-  }
-
+  urlCheck(res, url);
   try {
     const results = await aChecker.getCompliance(url, "/");
     const report = results.report;
-    // console.log(report);
     res.status(200).json({ report });
   } catch (err) {
     console.error(err);

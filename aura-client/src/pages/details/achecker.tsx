@@ -10,7 +10,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useRouter } from "next/router";
-import { Button } from "@/components/ui/button";
+import { DetailHead } from "@/components/detail-head";
 
 export default function Achecker() {
   const router = useRouter();
@@ -29,13 +29,7 @@ export default function Achecker() {
 
   return (
     <div className="mx-auto px-10 py-8">
-      <h1 className="text-3xl font-bold mb-4">Achecker Violation Details</h1>
-      <Button
-        onClick={handleClick}
-        className="bg-slate-500 hover:bg-slate-700 text-white font-bold py-2 px-4 rounded"
-      >
-        Back
-      </Button>
+      <DetailHead toolName="Achecker" handleClick={handleClick} />
       {violations && violations.length > 0 ? (
         <Table>
           <TableHeader>

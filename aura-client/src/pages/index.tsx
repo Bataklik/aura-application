@@ -36,19 +36,10 @@ export default function Home() {
   const acheckerSelector = useSelector(
     (state: RootState) => state.acheckerSlice
   );
-  const [buttonDisabled, setButtonDisabled] = useState<boolean>(false);
-  // const [axeResults, setAxeResults] = useState<AxeResultsType | null>(null);
   const [axeStatus, setAxeStatus] = useState<string>("Api Waiting");
-
-  // const [pa11yResults, setPa11yResults] = useState<Pa11yResultsType | null>(
-  //   null
-  // );
   const [pa11yStatus, setPa11yStatus] = useState<string>("Api Waiting");
-
-  // const [acheckerResults, setAcheckerResults] =
-  //   useState<AcheckerResultsType | null>(null);
   const [acheckerStatus, setAcheckerStatus] = useState<string>("Api Waiting");
-
+  const [url, setUrl] = useState<string>("");
   const countAxeResultProblems = (
     violations: AxeViolationType | undefined,
     incomplete: AxeIncompeleteType | undefined
@@ -56,22 +47,25 @@ export default function Home() {
     if (violations === undefined) return undefined;
     if (incomplete === undefined) return undefined;
     let totalProblemsCount = 0;
+    let incompleteCount = 0;
+    let violationsCount = 0;
     //? Violations value
     if (violations) {
       violations.forEach(violation => {
         totalProblemsCount += violation.nodes.length;
+        violationsCount += violation.nodes.length;
       });
     }
     //? Incompete value
     if (incomplete) {
       incomplete.forEach(incomplete => {
         totalProblemsCount += incomplete.nodes.length;
+        incompleteCount += incomplete.nodes.length;
       });
     }
 
     return totalProblemsCount;
   };
-
   const countPa11yResultProblems = (results: PA11YIssueType[] | undefined) => {
     if (results === undefined) return undefined;
     let totalProblemsCount = 0;
@@ -83,7 +77,7 @@ export default function Home() {
   const countAccheckerResultProblems = (
     result: AcheckerResultsType | undefined
   ) => {
-    if (result === undefined) return undefined;
+    if (result === undefined || result.report === undefined) return undefined;
     let totalProblemsCount = 0;
     result.report.results.forEach(item => {
       if (item && item.level === "violation") {
@@ -93,16 +87,18 @@ export default function Home() {
     return totalProblemsCount;
   };
 
-  const handleClick = () => {
-    setButtonDisabled(true);
+  const setLoadingStatus = () => {
     setAxeStatus("Api Loading...");
     setPa11yStatus("Api Loading...");
     setAcheckerStatus("Api Loading...");
-    getAxeResults("https://www.hogent.be")
+  };
+
+  const handleClick = () => {
+    setLoadingStatus();
+    getAxeResults(url)
       .then((result: AxeResultsType) => {
         console.log("Result axe:", result);
         setAxeStatus("Api Success");
-        //setAxeResults(result);
         dispatch(setViolations(result.violations));
         dispatch(setIncomplete(result.incomplete));
       })
@@ -111,30 +107,24 @@ export default function Home() {
         console.error("Error:", error);
       });
 
-    getPA11YResults("https://www.hogent.be")
+    getPA11YResults(url)
       .then((result: Pa11yResultsType) => {
-        //console.log("Result pa11y:", result);
         setPa11yStatus("Api Success");
-        //setPa11yResults(result);
         dispatch(updatePa11yResults(result.issues));
       })
       .catch(error => {
         setPa11yStatus("Api Error");
         console.error("Error:", error);
       });
-    getAcheckerResults("https://www.hogent.be")
+    getAcheckerResults(url)
       .then(result => {
-        // console.log("Result Achecker:", result);
         setAcheckerStatus("Api Success");
-        //setAcheckerResults(result);
         dispatch(updateAcheckerResults(result));
       })
       .catch(error => {
         setAcheckerStatus("Api Error");
         console.error("Error:", error);
       });
-
-    setButtonDisabled(false);
   };
 
   return (
@@ -151,17 +141,15 @@ export default function Home() {
             className="flex-1 mr-4"
             placeholder="Voer de URL van uw website in"
             type="text"
+            value={url}
+            pattern="https://.*"
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              setUrl(e.target.value)
+            }
           />
-          {buttonDisabled ? (
-            <Button disabled={true} onClick={() => handleClick()}>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Controleer Toegankelijkheid
-            </Button>
-          ) : (
-            <Button disabled={false} onClick={() => handleClick()}>
-              Controleer Toegankelijkheid
-            </Button>
-          )}
+          <Button disabled={false} onClick={() => handleClick()}>
+            Controleer Toegankelijkheid
+          </Button>
         </div>
         <div
           className="border rounded-md p-6 bg-gray-100 dark:bg-gray-800"

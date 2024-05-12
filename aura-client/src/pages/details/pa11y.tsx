@@ -1,3 +1,4 @@
+import { DetailHead } from "./../../components/detail-head";
 import { useRouter } from "next/router";
 import React from "react";
 import {
@@ -22,20 +23,14 @@ export default function Pa11y() {
   };
   return (
     <div className="mx-auto px-10 py-8">
-      <h1 className="text-3xl font-bold mb-4">PA11Y Results</h1>
-      <Button
-        onClick={handleClick}
-        className="bg-slate-500 hover:bg-slate-700 text-white font-bold py-2 px-4 rounded"
-      >
-        Back
-      </Button>
+      <DetailHead toolName="Pa11y" handleClick={handleClick} />
       {results && results.length > 0 ? (
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead>Code</TableHead>
               <TableHead>Type</TableHead>
-              <TableHead className="w-2/5">Message</TableHead>
+              <TableHead>Message</TableHead>
               <TableHead>Selector</TableHead>
             </TableRow>
           </TableHeader>
