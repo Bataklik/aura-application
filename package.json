@@ -1,0 +1,16 @@
+{
+  "name": "aura-application",
+  "version": "1.0.0",
+  "description": "- Accessibility\r - Usability\r - Reliability\r - Automation",
+  "main": "index.js",
+  "scripts": {
+    "start": "concurrently --kill-others-on-fail \"npm run server\" \"npm run client\"",
+    "server": "cd aura-server & node index.js",
+    "client": "cd aura-client & npm run dev"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
