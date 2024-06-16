@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 
 type tablerowLinkProps = {
   href: string;
+  targetUrl: string;
   name: string;
   status: string;
   problems: number | undefined;
@@ -14,16 +15,18 @@ type tablerowLinkProps = {
 export function TablerowLink({
   name,
   href,
+  targetUrl,
   problems,
   status,
 }: tablerowLinkProps) {
   const router = useRouter();
-
+  const navigateToDetails = () => {
+    const encodedUrl = encodeURIComponent(targetUrl);
+    router.push(`${href}?url=${encodedUrl}`);
+  };
   return (
     <TableRow
-      onClick={() => {
-        router.push(href);
-      }}
+      onClick={() => navigateToDetails()}
       className="cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700"
     >
       <TableCell>{name}</TableCell>

@@ -1,6 +1,9 @@
-import { DetailHead } from "./../../components/detail-head";
+// pages/details/pa11y.tsx
+
+import { DetailHead } from "@/components/detail-head";
 import { useRouter } from "next/router";
 import React from "react";
+import { useQuery } from "@tanstack/react-query";
 import {
   Table,
   TableBody,
@@ -10,21 +13,31 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { RootState } from "@/redux/store";
-import { useSelector } from "react-redux";
-import { Button } from "@/components/ui/button";
+import { fetchPa11y } from "@/utils/api"; // Zorg ervoor dat je de fetchPa11y functie hebt geïmporteerd
 
 export default function Pa11y() {
   const router = useRouter();
-  const results = useSelector((state: RootState) => state.pa11ySlice.issues);
-  const handleClick = (e: { preventDefault: () => void }) => {
+  const { data, status } = useQuery({
+    queryKey: ["pa11y", router.query.url],
+    queryFn: () => fetchPa11y(router.query.url as string),
+    enabled: !!router.query.url,
+  });
+
+  const handleClick = (e: any) => {
     e.preventDefault();
     router.back();
   };
+  console.log(router.query.url);
+  console.log(router);
+
+  console.log(data);
+
   return (
     <div className="mx-auto px-10 py-8">
       <DetailHead toolName="Pa11y" handleClick={handleClick} />
-      {results && results.length > 0 ? (
+      {status === "pending" && <p>Loading...</p>}
+      {status === "error" && <p>Error loading data.</p>}
+      {data && data.issues.length > 0 ? (
         <Table>
           <TableHeader>
             <TableRow>
@@ -35,7 +48,7 @@ export default function Pa11y() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {results.map((issue, index) => (
+            {data.issues.map((issue, index) => (
               <TableRow key={index}>
                 <TableCell>{issue.code}</TableCell>
                 <TableCell>{issue.type}</TableCell>

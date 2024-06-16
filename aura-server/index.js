@@ -27,7 +27,7 @@ const urlCheck = (res, url) => {
   }
 };
 
-app.get("/api/axe-results", async (req, res) => {
+app.get("/api/axe", async (req, res) => {
   const url = req.query.url;
   urlCheck(res, url);
   try {
@@ -44,7 +44,7 @@ app.get("/api/axe-results", async (req, res) => {
   }
 });
 
-app.get("/api/pa11y-results", async (req, res) => {
+app.get("/api/pa11y", async (req, res) => {
   const url = req.query.url;
   urlCheck(res, url);
   pa11y(url)
@@ -56,7 +56,7 @@ app.get("/api/pa11y-results", async (req, res) => {
     });
 });
 
-app.get("/api/achecker-results", async (req, res) => {
+app.get("/api/achecker", async (req, res) => {
   const url = req.query.url;
   urlCheck(res, url);
   try {
